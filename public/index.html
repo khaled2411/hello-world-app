@@ -9,8 +9,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 48px 24px;
       margin: 0;
       font-family: Arial, sans-serif;
       background: #f0f2f5;
@@ -33,15 +32,68 @@
       color: #333;
       min-height: 48px;
     }
+    table {
+      margin-top: 40px;
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th {
+      background: #4CAF50;
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+    }
+    td {
+      padding: 10px 16px;
+      border-bottom: 1px solid #eee;
+      color: #555;
+    }
+    tr:last-child td { border-bottom: none; }
+    #empty { color: #999; margin-top: 16px; font-size: 14px; }
   </style>
 </head>
 <body>
-  <button onclick="showMessage()">Click Me</button>
+  <button onclick="handleClick()">Click Me</button>
   <div id="message"></div>
+  <table id="history" style="display:none">
+    <thead><tr><th>#</th><th>Date & Time</th></tr></thead>
+    <tbody id="history-body"></tbody>
+  </table>
+  <div id="empty">No clicks yet.</div>
+
   <script>
-    function showMessage() {
+    async function handleClick() {
       document.getElementById('message').textContent = 'Hello World!';
+      await fetch('/api/click', { method: 'POST' });
+      loadHistory();
     }
+
+    async function loadHistory() {
+      const res = await fetch('/api/clicks');
+      const clicks = await res.json();
+      const tbody = document.getElementById('history-body');
+      const table = document.getElementById('history');
+      const empty = document.getElementById('empty');
+
+      if (clicks.length === 0) {
+        table.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      table.style.display = 'table';
+      empty.style.display = 'none';
+      tbody.innerHTML = clicks.map((c, i) =>
+        `<tr><td>${i + 1}</td><td>${new Date(c.clicked_at).toLocaleString()}</td></tr>`
+      ).join('');
+    }
+
+    loadHistory();
   </script>
 </body>
 </html>
