@@ -67,14 +67,16 @@
   <div id="empty">No clicks yet.</div>
 
   <script>
+    const BASE = '/hw';
+
     async function handleClick() {
       document.getElementById('message').textContent = 'Hello World!';
-      await fetch('/api/click', { method: 'POST' });
+      await fetch(`${BASE}/api/click`, { method: 'POST' });
       loadHistory();
     }
 
     async function loadHistory() {
-      const res = await fetch('/api/clicks');
+      const res = await fetch(`${BASE}/api/clicks`);
       const clicks = await res.json();
       const tbody = document.getElementById('history-body');
       const table = document.getElementById('history');
